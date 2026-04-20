@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::section})}">
+<head>
+    <title>Detalhe Cliente — Caly Vision Ótica</title>
+</head>
+<body>
+<section>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="page-title mb-0" th:text="${cliente.nome}"></h4>
+        <div>
+            <a th:href="@{/clientes/{id}/editar(id=${cliente.id})}" class="btn btn-sm btn-primary">Editar</a>
+            <a th:href="@{/clientes}" class="btn btn-sm btn-outline-secondary ms-1">Voltar</a>
+        </div>
+    </div>
+
+    <div class="card" style="max-width:600px">
+        <div class="card-body">
+            <dl class="row mb-0">
+                <dt class="col-sm-4">CPF</dt>
+                <dd class="col-sm-8" th:text="${cliente.cpf} ?: '—'"></dd>
+                <dt class="col-sm-4">Telefone</dt>
+                <dd class="col-sm-8" th:text="${cliente.telefone} ?: '—'"></dd>
+                <dt class="col-sm-4">E-mail</dt>
+                <dd class="col-sm-8" th:text="${cliente.email} ?: '—'"></dd>
+                <dt class="col-sm-4">Endereco</dt>
+                <dd class="col-sm-8" th:text="${cliente.endereco} ?: '—'"></dd>
+                <dt class="col-sm-4">Nascimento</dt>
+                <dd class="col-sm-8" th:text="${#temporals.format(cliente.dataNascimento, 'dd/MM/yyyy')} ?: '—'"></dd>
+                <dt class="col-sm-4">Cadastrado em</dt>
+                <dd class="col-sm-8" th:text="${#temporals.format(cliente.criadoEm, 'dd/MM/yyyy HH:mm')}"></dd>
+            </dl>
+        </div>
+    </div>
+</section>
+</body>
+</html>

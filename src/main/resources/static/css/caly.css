@@ -1,0 +1,231 @@
+/* =============================================
+   Caly Vision Ótica — Identidade Visual
+   Cores: Crimson escuro, Branco, Dourado
+   ============================================= */
+
+:root {
+  --caly-primary:     #7A1212;
+  --caly-primary-dark:#5A0D0D;
+  --caly-primary-hover:#8E1717;
+  --caly-gold:        #C4883A;
+  --caly-gold-light:  #D9A04E;
+  --caly-dark:        #1A0505;
+  --caly-text-light:  #F8F0F0;
+  --caly-border:      #D4B0B0;
+  --caly-bg-soft:     #FDF8F8;
+}
+
+/* ---- Navbar ---- */
+.navbar.caly-navbar {
+  background-color: var(--caly-dark) !important;
+  border-bottom: 2px solid var(--caly-primary);
+}
+
+.caly-navbar .navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.35rem;
+  letter-spacing: 0.02em;
+  color: #FFFFFF !important;
+}
+
+.caly-navbar .navbar-brand .brand-caly {
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+.caly-navbar .navbar-brand .brand-vision {
+  font-weight: 400;
+  color: var(--caly-gold);
+}
+
+.caly-navbar .navbar-brand .brand-sub {
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  color: var(--caly-border);
+  text-transform: uppercase;
+  display: block;
+  line-height: 1;
+  margin-top: -2px;
+}
+
+.caly-navbar .nav-link {
+  color: rgba(255, 255, 255, 0.85) !important;
+  font-size: 0.9rem;
+  transition: color 0.2s;
+}
+
+.caly-navbar .nav-link:hover,
+.caly-navbar .nav-link.active {
+  color: var(--caly-gold) !important;
+}
+
+.caly-navbar .btn-outline-light {
+  border-color: rgba(255,255,255,0.4);
+  color: rgba(255,255,255,0.85);
+  font-size: 0.85rem;
+}
+
+.caly-navbar .btn-outline-light:hover {
+  background-color: var(--caly-primary);
+  border-color: var(--caly-primary);
+  color: #fff;
+}
+
+/* ---- Buttons ---- */
+.btn-primary {
+  background-color: var(--caly-primary) !important;
+  border-color: var(--caly-primary) !important;
+  color: #fff !important;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: var(--caly-primary-hover) !important;
+  border-color: var(--caly-primary-hover) !important;
+  box-shadow: 0 0 0 0.2rem rgba(122, 18, 18, 0.35) !important;
+}
+
+.btn-outline-primary {
+  color: var(--caly-primary) !important;
+  border-color: var(--caly-primary) !important;
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--caly-primary) !important;
+  border-color: var(--caly-primary) !important;
+  color: #fff !important;
+}
+
+/* ---- Cards ---- */
+.card {
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.card-header {
+  font-weight: 600;
+  font-size: 0.9rem;
+  letter-spacing: 0.02em;
+}
+
+/* Stat cards on dashboard */
+.card.text-bg-primary {
+  background-color: var(--caly-primary) !important;
+  border-color: var(--caly-primary) !important;
+}
+
+/* ---- Tables ---- */
+.table thead th {
+  background-color: var(--caly-bg-soft);
+  color: var(--caly-primary-dark);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 2px solid var(--caly-border);
+}
+
+.table tbody tr:hover {
+  background-color: #fdf3f3;
+}
+
+/* ---- Form controls ---- */
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--caly-primary);
+  box-shadow: 0 0 0 0.2rem rgba(122, 18, 18, 0.2);
+}
+
+/* ---- Page title / headings ---- */
+h4.page-title {
+  color: var(--caly-primary-dark);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+h4.page-title::after {
+  content: '';
+  flex: 1;
+  height: 2px;
+  background: linear-gradient(to right, var(--caly-border), transparent);
+  margin-left: 0.5rem;
+}
+
+/* ---- Login page ---- */
+body.caly-login-bg {
+  background: linear-gradient(135deg, var(--caly-dark) 0%, #3A0A0A 60%, #5A1010 100%);
+  min-height: 100vh;
+}
+
+.caly-login-card {
+  border: none;
+  border-radius: 0.75rem;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.45);
+}
+
+.caly-login-card .caly-login-header {
+  background-color: var(--caly-primary);
+  border-radius: 0.75rem 0.75rem 0 0;
+  padding: 1.75rem 2rem 1.5rem;
+  text-align: center;
+  color: #fff;
+}
+
+.caly-login-card .caly-login-header .brand-name {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.caly-login-card .caly-login-header .brand-name span {
+  color: var(--caly-gold);
+}
+
+.caly-login-card .caly-login-header .brand-sub {
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.7);
+  margin-top: -2px;
+}
+
+.caly-login-card .card-body {
+  padding: 2rem;
+  background: #fff;
+  border-radius: 0 0 0.75rem 0.75rem;
+}
+
+/* Glasses SVG icon in login */
+.caly-glasses-icon {
+  display: block;
+  margin: 0 auto 0.5rem;
+}
+
+/* ---- Alerts ---- */
+.alert-success {
+  background-color: #e8f5e9;
+  border-color: #a5d6a7;
+  color: #2e7d32;
+}
+
+.alert-danger {
+  background-color: #fdecea;
+  border-color: #f5c6cb;
+  color: #c62828;
+}
+
+/* ---- Badge ---- */
+.badge.bg-primary {
+  background-color: var(--caly-primary) !important;
+}
+
+/* ---- Scrollbar subtle ---- */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #f5f5f5; }
+::-webkit-scrollbar-thumb { background: var(--caly-border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--caly-primary); }

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::section})}">
+<head><title>Detalhe da Venda — Caly Vision Ótica</title></head>
+<body>
+<section>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="page-title mb-0" th:text="'Venda ' + ${venda.numeroVenda}"></h4>
+    <a th:href="@{/vendas}" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Voltar
+    </a>
+</div>
+
+<div class="row g-3">
+
+    <!-- Cabeçalho da venda -->
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header fw-semibold"><i class="bi bi-receipt me-1"></i> Venda</div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-5 text-muted small">Número</dt>
+                    <dd class="col-7 font-monospace" th:text="${venda.numeroVenda}"></dd>
+
+                    <dt class="col-5 text-muted small">Data</dt>
+                    <dd class="col-7" th:text="${#temporals.format(venda.dataVenda, 'dd/MM/yyyy HH:mm')}"></dd>
+
+                    <dt class="col-5 text-muted small">Pagamento</dt>
+                    <dd class="col-7">
+                        <span th:text="${venda.formaPagamento.name().replace('_',' ')}"></span>
+                        <span th:if="${venda.parcelas > 1}"
+                              class="text-muted" th:text="' (' + ${venda.parcelas} + 'x)'"></span>
+                    </dd>
+
+                    <dt class="col-5 text-muted small">Operador</dt>
+                    <dd class="col-7" th:text="${venda.usuario.nome}"></dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cliente -->
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header fw-semibold"><i class="bi bi-person me-1"></i> Cliente</div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-5 text-muted small">Nome</dt>
+                    <dd class="col-7" th:text="${venda.cliente.nome}"></dd>
+
+                    <dt class="col-5 text-muted small">CPF</dt>
+                    <dd class="col-7" th:text="${venda.cliente.cpf ?: '—'}"></dd>
+
+                    <dt class="col-5 text-muted small">Telefone</dt>
+                    <dd class="col-7" th:text="${venda.cliente.telefone ?: '—'}"></dd>
+
+                    <dt class="col-5 text-muted small">E-mail</dt>
+                    <dd class="col-7" th:text="${venda.cliente.email ?: '—'}"></dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <!-- Itens -->
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header fw-semibold"><i class="bi bi-box-seam me-1"></i> Itens</div>
+            <div class="card-body p-0">
+                <table class="table table-sm table-bordered mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Código</th>
+                            <th>Produto</th>
+                            <th>Marca</th>
+                            <th class="text-center">Qtd</th>
+                            <th class="text-end">Preço Unit.</th>
+                            <th class="text-end">Desconto</th>
+                            <th class="text-end">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="item : ${venda.itens}">
+                            <td class="font-monospace small" th:text="${item.produto.codigo}"></td>
+                            <td th:text="${item.produto.descricao}"></td>
+                            <td th:text="${item.produto.marca ?: '—'}"></td>
+                            <td class="text-center" th:text="${item.quantidade}"></td>
+                            <td class="text-end"
+                                th:text="${'R$ ' + #numbers.formatDecimal(item.precoUnitario, 1, 'POINT', 2, 'COMMA')}"></td>
+                            <td class="text-end text-muted"
+                                th:text="${item.desconto != null and item.desconto > 0}
+                                         ? ${'R$ ' + #numbers.formatDecimal(item.desconto, 1, 'POINT', 2, 'COMMA')}
+                                         : '—'"></td>
+                            <td class="text-end fw-semibold"
+                                th:text="${'R$ ' + #numbers.formatDecimal(item.subtotal(), 1, 'POINT', 2, 'COMMA')}"></td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr class="fw-bold table-light">
+                            <td colspan="6" class="text-end">Total</td>
+                            <td class="text-end"
+                                th:text="${'R$ ' + #numbers.formatDecimal(venda.valorTotal, 1, 'POINT', 2, 'COMMA')}"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+</section>
+</body>
+</html>

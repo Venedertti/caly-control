@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::section})}">
+<head>
+    <title>Nova OS — Caly Vision Ótica</title>
+</head>
+<body>
+<section>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="page-title mb-0">Nova Ordem de Serviço</h4>
+        <a th:href="@{/os}" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Voltar
+        </a>
+    </div>
+
+    <div th:if="${erro}" class="alert alert-danger">
+        <i class="bi bi-exclamation-circle me-1"></i><span th:text="${erro}"></span>
+    </div>
+
+    <form id="osForm" th:action="@{/os}" th:object="${form}" method="post" onsubmit="return prepararSubmit()">
+
+        <div class="row g-3">
+
+            <!-- Cliente e Receita -->
+            <div class="col-md-6">
+                <label class="form-label fw-semibold">Cliente *</label>
+                <select class="form-select" th:field="*{clienteId}" required
+                        onchange="carregarReceitas(this.value)">
+                    <option value="">Selecione o cliente</option>
+                    <option th:each="c : ${clientes}"
+                            th:value="${c.id}"
+                            th:text="${c.nome}"></option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-semibold">Receita óptica <small class="text-muted">(opcional)</small></label>
+                <select class="form-select" th:field="*{receitaId}">
+                    <option value="">Sem receita vinculada</option>
+                    <option th:each="r : ${receitas}"
+                            th:value="${r.id}"
+                            th:text="${'#' + r.id + ' — ' + r.cliente.nome + ' — ' + #temporals.format(r.dataEmissao,'dd/MM/yyyy')}"></option>
+                </select>
+            </div>
+
+            <!-- Datas e Pagamento -->
+            <div class="col-md-4">
+                <label class="form-label fw-semibold">Previsão de entrega</label>
+                <input type="date" class="form-control" th:field="*{dataPrevisao}">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label fw-semibold">Valor pago (entrada)</label>
+                <div class="input-group">
+                    <span class="input-group-text">R$</span>
+                    <input type="number" class="form-control" th:field="*{valorPago}"
+                           step="0.01" min="0" placeholder="0,00">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label fw-semibold">Observações</label>
+                <input type="text" class="form-control" th:field="*{observacoes}"
+                       maxlength="500" placeholder="Informações adicionais...">
+            </div>
+
+            <!-- Itens da OS -->
+            <div class="col-12">
+                <div class="card border-primary">
+                    <div class="card-header text-bg-primary d-flex justify-content-between align-items-center">
+                        <span><i class="bi bi-list-ul me-1"></i>Produtos / Serviços</span>
+                        <button type="button" class="btn btn-sm btn-light" onclick="adicionarItem()">
+                            <i class="bi bi-plus-lg"></i> Adicionar
+                        </button>
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="table table-sm mb-0" id="tabelaItens">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width:35%">Produto / Serviço</th>
+                                    <th style="width:10%">Qtd</th>
+                                    <th style="width:18%">Preço unit.</th>
+                                    <th style="width:15%">Desconto</th>
+                                    <th style="width:15%" class="text-end">Subtotal</th>
+                                    <th style="width:7%"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="itensBody">
+                                <tr id="semItens">
+                                    <td colspan="6" class="text-center text-muted py-3">
+                                        Nenhum produto adicionado.
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr class="table-light fw-bold">
+                                    <td colspan="4" class="text-end">Total:</td>
+                                    <td class="text-end" id="totalGeral">R$ 0,00</td>
+                                    <td></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-wrench-adjustable me-1"></i>Abrir OS
+                </button>
+            </div>
+        </div>
+    </form>
+</section>
+
+<script th:inline="javascript">
+    const produtos = /*[[${produtos}]]*/ [];
+    let itens = [];
+
+    const precos = {};
+    produtos.forEach(p => precos[p.id] = p.precoVenda);
+
+    function adicionarItem() {
+        const idx = itens.length;
+        itens.push({ produtoId: '', quantidade: 1, preco: 0, desconto: 0 });
+        renderizarItens();
+    }
+
+    function removerItem(idx) {
+        itens.splice(idx, 1);
+        renderizarItens();
+    }
+
+    function renderizarItens() {
+        const tbody = document.getElementById('itensBody');
+        const semItens = document.getElementById('semItens');
+
+        tbody.innerHTML = '';
+
+        if (itens.length === 0) {
+            tbody.appendChild(semItens);
+            document.getElementById('totalGeral').textContent = 'R$ 0,00';
+            return;
+        }
+
+        let total = 0;
+        itens.forEach((item, idx) => {
+            const subtotal = (item.preco * item.quantidade) - item.desconto;
+            total += subtotal > 0 ? subtotal : 0;
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>
+                    <select class="form-select form-select-sm" onchange="selecionarProduto(${idx}, this.value)">
+                        <option value="">Selecione...</option>
+                        ${produtos.map(p =>
+                            `<option value="${p.id}" ${item.produtoId == p.id ? 'selected' : ''}>${p.descricao}</option>`
+                        ).join('')}
+                    </select>
+                </td>
+                <td><input type="number" class="form-control form-control-sm" min="1"
+                           value="${item.quantidade}"
+                           onchange="itens[${idx}].quantidade = +this.value; renderizarItens()"></td>
+                <td><input type="number" class="form-control form-control-sm" min="0" step="0.01"
+                           value="${item.preco.toFixed(2)}"
+                           onchange="itens[${idx}].preco = +this.value; renderizarItens()"></td>
+                <td><input type="number" class="form-control form-control-sm" min="0" step="0.01"
+                           value="${item.desconto.toFixed(2)}"
+                           onchange="itens[${idx}].desconto = +this.value; renderizarItens()"></td>
+                <td class="text-end fw-semibold">R$ ${(subtotal > 0 ? subtotal : 0).toFixed(2).replace('.',',')}</td>
+                <td class="text-center">
+                    <button type="button" class="btn btn-sm btn-outline-danger py-0"
+                            onclick="removerItem(${idx})"><i class="bi bi-trash"></i></button>
+                </td>`;
+            tbody.appendChild(tr);
+        });
+
+        document.getElementById('totalGeral').textContent =
+            'R$ ' + total.toFixed(2).replace('.', ',');
+    }
+
+    function selecionarProduto(idx, produtoId) {
+        itens[idx].produtoId = produtoId;
+        itens[idx].preco = produtoId ? (precos[produtoId] || 0) : 0;
+        renderizarItens();
+    }
+
+    function prepararSubmit() {
+        if (itens.length === 0) {
+            alert('Adicione pelo menos um produto ou serviço.');
+            return false;
+        }
+        const form = document.getElementById('osForm');
+        // Remove inputs antigos
+        form.querySelectorAll('input[name^="itens"]').forEach(e => e.remove());
+
+        itens.forEach((item, idx) => {
+            const add = (name, value) => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = name;
+                input.value = value;
+                form.appendChild(input);
+            };
+            add(`itens[${idx}].produtoId`,     item.produtoId);
+            add(`itens[${idx}].quantidade`,    item.quantidade);
+            add(`itens[${idx}].precoUnitario`, item.preco.toFixed(2));
+            add(`itens[${idx}].desconto`,      item.desconto.toFixed(2));
+        });
+        return true;
+    }
+</script>
+</body>
+</html>

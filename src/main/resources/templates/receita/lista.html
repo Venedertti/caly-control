@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::section})}">
+<head>
+    <title>Receitas — Caly Vision Ótica</title>
+</head>
+<body>
+<section>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="page-title mb-0">Receitas Ópticas</h4>
+        <a sec:authorize="hasAnyRole('ADMIN','VENDEDOR')"
+           th:href="@{/receitas/nova}" class="btn btn-primary btn-sm">
+            <i class="bi bi-plus-lg me-1"></i>Nova Receita
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Cliente</th>
+                        <th>Médico</th>
+                        <th>Emissão</th>
+                        <th>Validade</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:if="${#lists.isEmpty(receitas)}">
+                        <td colspan="7" class="text-center text-muted py-4">
+                            Nenhuma receita cadastrada.
+                        </td>
+                    </tr>
+                    <tr th:each="r : ${receitas}">
+                        <td class="font-monospace small" th:text="${r.id}"></td>
+                        <td th:text="${r.cliente.nome}"></td>
+                        <td th:text="${'Dr(a). ' + r.medico.nome}"></td>
+                        <td th:text="${#temporals.format(r.dataEmissao, 'dd/MM/yyyy')}"></td>
+                        <td>
+                            <span th:text="${#temporals.format(r.validade, 'dd/MM/yyyy')}"
+                                  th:classappend="${r.expirada} ? 'text-danger fw-bold' : ''"></span>
+                        </td>
+                        <td>
+                            <span th:if="${r.expirada}" class="badge bg-danger">Expirada</span>
+                            <span th:unless="${r.expirada}" class="badge bg-success">Válida</span>
+                        </td>
+                        <td class="text-end">
+                            <a th:href="@{/receitas/{id}(id=${r.id})}" class="btn btn-sm btn-outline-secondary py-0">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a sec:authorize="hasAnyRole('ADMIN','VENDEDOR')"
+                               th:href="@{/receitas/{id}/editar(id=${r.id})}"
+                               class="btn btn-sm btn-outline-primary py-0 ms-1">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+</body>
+</html>

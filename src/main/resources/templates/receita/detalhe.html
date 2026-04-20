@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::section})}">
+<head>
+    <title>Receita — Caly Vision Ótica</title>
+</head>
+<body>
+<section>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="page-title mb-0">
+            Receita #<span th:text="${receita.id}"></span>
+            <span th:if="${receita.expirada}" class="badge bg-danger ms-2 fs-6">Expirada</span>
+            <span th:unless="${receita.expirada}" class="badge bg-success ms-2 fs-6">Válida</span>
+        </h4>
+        <div class="d-flex gap-2">
+            <a sec:authorize="hasAnyRole('ADMIN','VENDEDOR')"
+               th:href="@{/receitas/{id}/editar(id=${receita.id})}"
+               class="btn btn-sm btn-outline-primary">
+                <i class="bi bi-pencil me-1"></i>Editar
+            </a>
+            <a th:href="@{/receitas}" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i>Voltar
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <!-- Cabeçalho -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header fw-semibold">Paciente</div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">Nome</dt>
+                        <dd class="col-sm-8" th:text="${receita.cliente.nome}"></dd>
+
+                        <dt class="col-sm-4">CPF</dt>
+                        <dd class="col-sm-8" th:text="${receita.cliente.cpf ?: '—'}"></dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header fw-semibold">Prescrição</div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-5">Médico</dt>
+                        <dd class="col-sm-7" th:text="${'Dr(a). ' + receita.medico.nome}"></dd>
+
+                        <dt class="col-sm-5">Emissão</dt>
+                        <dd class="col-sm-7" th:text="${#temporals.format(receita.dataEmissao, 'dd/MM/yyyy')}"></dd>
+
+                        <dt class="col-sm-5">Validade</dt>
+                        <dd class="col-sm-7"
+                            th:text="${#temporals.format(receita.validade, 'dd/MM/yyyy')}"
+                            th:classappend="${receita.expirada} ? 'text-danger fw-bold' : ''"></dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabela de prescrição -->
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header fw-semibold"><i class="bi bi-eyeglasses me-1"></i>Graus</div>
+                <div class="card-body p-0">
+                    <table class="table table-bordered mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Olho</th>
+                                <th class="text-center">Esférico</th>
+                                <th class="text-center">Cilíndrico</th>
+                                <th class="text-center">Eixo</th>
+                                <th class="text-center">Adição</th>
+                                <th class="text-center">DP</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="fw-semibold">OD</td>
+                                <td class="text-center" th:text="${receita.odEsf != null ? receita.odEsf : '—'}"></td>
+                                <td class="text-center" th:text="${receita.odCil != null ? receita.odCil : '—'}"></td>
+                                <td class="text-center" th:text="${receita.odEixo != null ? receita.odEixo + '°' : '—'}"></td>
+                                <td class="text-center" th:text="${receita.adicao != null ? receita.adicao : '—'}"></td>
+                                <td class="text-center" th:text="${receita.dpOd != null ? receita.dpOd + ' mm' : '—'}"></td>
+                            </tr>
+                            <tr>
+                                <td class="fw-semibold">OE</td>
+                                <td class="text-center" th:text="${receita.oeEsf != null ? receita.oeEsf : '—'}"></td>
+                                <td class="text-center" th:text="${receita.oeCil != null ? receita.oeCil : '—'}"></td>
+                                <td class="text-center" th:text="${receita.oeEixo != null ? receita.oeEixo + '°' : '—'}"></td>
+                                <td class="text-center">—</td>
+                                <td class="text-center" th:text="${receita.dpOe != null ? receita.dpOe + ' mm' : '—'}"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Observações -->
+        <div class="col-12" th:if="${receita.observacoes != null and !receita.observacoes.isEmpty()}">
+            <div class="card">
+                <div class="card-header fw-semibold">Observações</div>
+                <div class="card-body" th:text="${receita.observacoes}"></div>
+            </div>
+        </div>
+
+        <!-- Ações -->
+        <div class="col-12">
+            <a th:href="@{/os/nova(clienteId=${receita.cliente.id})}"
+               class="btn btn-primary">
+                <i class="bi bi-wrench-adjustable me-1"></i>Abrir OS com esta receita
+            </a>
+        </div>
+    </div>
+</section>
+</body>
+</html>

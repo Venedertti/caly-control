@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::section})}">
+<head><title>Fornecedor — Caly Vision Ótica</title></head>
+<body>
+<section>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="page-title mb-0" th:text="${fornecedor.id == null} ? 'Novo Fornecedor' : 'Editar Fornecedor'"></h4>
+        <a th:href="@{/fornecedores}" class="btn btn-sm btn-outline-secondary">Voltar</a>
+    </div>
+    <div class="card" style="max-width:600px">
+        <div class="card-body">
+            <form th:action="${fornecedor.id == null} ? @{/fornecedores} : @{/fornecedores/{id}(id=${fornecedor.id})}"
+                  th:object="${fornecedor}" method="post">
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <label class="form-label">Razao Social *</label>
+                        <input type="text" th:field="*{razaoSocial}" class="form-control"
+                               th:classappend="${#fields.hasErrors('razaoSocial')} ? 'is-invalid'" required>
+                        <div class="invalid-feedback" th:errors="*{razaoSocial}"></div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">CNPJ</label>
+                        <input type="text" th:field="*{cnpj}" class="form-control" maxlength="18">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Representante</label>
+                        <input type="text" th:field="*{representante}" class="form-control">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Telefone</label>
+                        <input type="text" th:field="*{telefone}" class="form-control">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">E-mail</label>
+                        <input type="email" th:field="*{email}" class="form-control">
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                    <a th:href="@{/fornecedores}" class="btn btn-outline-secondary ms-2">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+</body>
+</html>

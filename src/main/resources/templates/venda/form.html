@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::section})}">
+<head><title>Nova Venda — Caly Vision Ótica</title></head>
+<body>
+<section>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="page-title mb-0">Nova Venda</h4>
+    <a th:href="@{/vendas}" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Voltar
+    </a>
+</div>
+
+<div th:if="${erro}" class="alert alert-danger">
+    <i class="bi bi-exclamation-circle me-1"></i><span th:text="${erro}"></span>
+</div>
+
+<form id="vendaForm" th:action="@{/vendas}" th:object="${form}" method="post">
+
+    <!-- ── Dados da venda ──────────────────────────────────────────────── -->
+    <div class="card mb-3">
+        <div class="card-header fw-semibold"><i class="bi bi-receipt me-1"></i> Dados da Venda</div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-5">
+                    <label class="form-label">Cliente *</label>
+                    <select th:field="*{clienteId}" class="form-select"
+                            th:classappend="${#fields.hasErrors('clienteId')} ? 'is-invalid'" required>
+                        <option value="">Selecione o cliente...</option>
+                        <option th:each="c : ${clientes}"
+                                th:value="${c.id}"
+                                th:text="${c.nome + (c.cpf != null ? ' — ' + c.cpf : '')}"></option>
+                    </select>
+                    <div class="invalid-feedback" th:errors="*{clienteId}"></div>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Forma de Pagamento *</label>
+                    <select th:field="*{formaPagamento}" id="formaPagamento" class="form-select"
+                            th:classappend="${#fields.hasErrors('formaPagamento')} ? 'is-invalid'" required>
+                        <option value="">Selecione...</option>
+                        <option th:each="fp : ${formasPagamento}"
+                                th:value="${fp.name()}"
+                                th:text="${fp.name().replace('_',' ')}"></option>
+                    </select>
+                    <div class="invalid-feedback" th:errors="*{formaPagamento}"></div>
+                </div>
+                <div class="col-md-3" id="parcelasGroup" style="display:none">
+                    <label class="form-label">Parcelas</label>
+                    <select th:field="*{parcelas}" class="form-select">
+                        <option th:each="n : ${#numbers.sequence(1,12)}"
+                                th:value="${n}" th:text="${n + 'x'}"></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Adicionar produto ───────────────────────────────────────────── -->
+    <div class="card mb-3">
+        <div class="card-header fw-semibold"><i class="bi bi-box-seam me-1"></i> Produtos</div>
+        <div class="card-body">
+
+            <!-- Linha de seleção -->
+            <div class="row g-2 align-items-end mb-3" id="addItemRow">
+                <div class="col-md-4">
+                    <label class="form-label small">Produto</label>
+                    <select id="selProduto" class="form-select form-select-sm">
+                        <option value="">Selecione o produto...</option>
+                        <option th:each="p : ${produtos}"
+                                th:value="${p.id}"
+                                th:data-preco="${p.precoVenda}"
+                                th:data-descricao="${p.descricao}"
+                                th:data-codigo="${p.codigo}"
+                                th:text="${p.codigo + ' — ' + p.descricao}"></option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small">Qtd</label>
+                    <input type="number" id="selQtd" class="form-control form-control-sm"
+                           value="1" min="1">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small">Preço Unit. (R$)</label>
+                    <input type="number" id="selPreco" class="form-control form-control-sm"
+                           step="0.01" min="0" placeholder="0,00">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small">Desconto (R$)</label>
+                    <input type="number" id="selDesconto" class="form-control form-control-sm"
+                           step="0.01" min="0" value="0">
+                </div>
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-primary btn-sm w-100" onclick="adicionarItem()">
+                        <i class="bi bi-plus-lg"></i> Adicionar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tabela de itens adicionados -->
+            <div class="table-responsive">
+                <table class="table table-sm table-bordered mb-1" id="tabelaItens">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Código</th>
+                            <th>Produto</th>
+                            <th class="text-center">Qtd</th>
+                            <th class="text-end">Preço Unit.</th>
+                            <th class="text-end">Desconto</th>
+                            <th class="text-end">Subtotal</th>
+                            <th class="text-center" style="width:50px"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="itensBody">
+                        <tr id="emptyRow">
+                            <td colspan="7" class="text-center text-muted py-2">Nenhum item adicionado.</td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr class="fw-bold">
+                            <td colspan="5" class="text-end">Total:</td>
+                            <td class="text-end" id="totalGeral">R$ 0,00</td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- Inputs hidden gerados pelo JS antes do submit -->
+            <div id="hiddenItens"></div>
+
+            <div id="erroItens" class="text-danger small mt-1" style="display:none">
+                <i class="bi bi-exclamation-circle"></i> Adicione pelo menos um produto antes de finalizar.
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary px-4" onclick="return prepararSubmit()">
+            <i class="bi bi-check-lg me-1"></i> Finalizar Venda
+        </button>
+        <a th:href="@{/vendas}" class="btn btn-outline-secondary">Cancelar</a>
+    </div>
+
+</form>
+
+<!-- ── JavaScript ──────────────────────────────────────────────────────── -->
+<script>
+const itens = [];   // { produtoId, codigo, descricao, qtd, preco, desconto }
+
+/* Mostra/oculta campo de parcelas */
+document.getElementById('formaPagamento').addEventListener('change', function () {
+    const parcelasGroup = document.getElementById('parcelasGroup');
+    parcelasGroup.style.display = this.value === 'CARTAO_CREDITO' ? 'block' : 'none';
+});
+
+/* Preenche preço ao selecionar produto */
+document.getElementById('selProduto').addEventListener('change', function () {
+    const opt = this.options[this.selectedIndex];
+    document.getElementById('selPreco').value = opt.dataset.preco || '';
+    document.getElementById('selDesconto').value = '0';
+});
+
+function adicionarItem() {
+    const sel      = document.getElementById('selProduto');
+    const opt      = sel.options[sel.selectedIndex];
+    const produtoId = sel.value;
+    const qtd      = parseInt(document.getElementById('selQtd').value) || 1;
+    const preco    = parseFloat(document.getElementById('selPreco').value) || 0;
+    const desconto = parseFloat(document.getElementById('selDesconto').value) || 0;
+
+    if (!produtoId) { alert('Selecione um produto.'); return; }
+    if (qtd < 1)   { alert('Quantidade deve ser ao menos 1.'); return; }
+    if (preco <= 0){ alert('Preço unitário deve ser maior que zero.'); return; }
+
+    const item = {
+        produtoId : produtoId,
+        codigo    : opt.dataset.codigo,
+        descricao : opt.dataset.descricao,
+        qtd       : qtd,
+        preco     : preco,
+        desconto  : desconto
+    };
+    itens.push(item);
+    renderTabela();
+    // Limpa seleção
+    sel.value = '';
+    document.getElementById('selQtd').value    = '1';
+    document.getElementById('selPreco').value  = '';
+    document.getElementById('selDesconto').value = '0';
+}
+
+function removerItem(idx) {
+    itens.splice(idx, 1);
+    renderTabela();
+}
+
+function renderTabela() {
+    const tbody = document.getElementById('itensBody');
+    const emptyRow = document.getElementById('emptyRow');
+    tbody.innerHTML = '';
+
+    if (itens.length === 0) {
+        tbody.appendChild(emptyRow);
+        document.getElementById('totalGeral').textContent = 'R$ 0,00';
+        return;
+    }
+
+    let total = 0;
+    itens.forEach((it, idx) => {
+        const subtotal = (it.preco * it.qtd) - it.desconto;
+        total += subtotal;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td class="font-monospace small">${it.codigo}</td>
+            <td>${it.descricao}</td>
+            <td class="text-center">${it.qtd}</td>
+            <td class="text-end">${fmt(it.preco)}</td>
+            <td class="text-end">${it.desconto > 0 ? fmt(it.desconto) : '—'}</td>
+            <td class="text-end fw-semibold">${fmt(subtotal)}</td>
+            <td class="text-center">
+                <button type="button" class="btn btn-sm btn-outline-danger py-0 px-1"
+                        onclick="removerItem(${idx})">
+                    <i class="bi bi-trash3"></i>
+                </button>
+            </td>`;
+        tbody.appendChild(tr);
+    });
+
+    document.getElementById('totalGeral').textContent = 'R$ ' + fmt(total);
+}
+
+function fmt(val) {
+    return val.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function prepararSubmit() {
+    if (itens.length === 0) {
+        document.getElementById('erroItens').style.display = 'block';
+        return false;
+    }
+    document.getElementById('erroItens').style.display = 'none';
+
+    // Gera hidden inputs indexados para Spring MVC
+    const container = document.getElementById('hiddenItens');
+    container.innerHTML = '';
+    itens.forEach((it, idx) => {
+        container.innerHTML += `
+            <input type="hidden" name="itens[${idx}].produtoId"     value="${it.produtoId}">
+            <input type="hidden" name="itens[${idx}].quantidade"     value="${it.qtd}">
+            <input type="hidden" name="itens[${idx}].precoUnitario"  value="${it.preco}">
+            <input type="hidden" name="itens[${idx}].desconto"       value="${it.desconto}">`;
+    });
+    return true;
+}
+</script>
+
+</section>
+</body>
+</html>

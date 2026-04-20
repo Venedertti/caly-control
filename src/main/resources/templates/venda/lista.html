@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::section})}">
+<head><title>Vendas — Caly Vision Ótica</title></head>
+<body>
+<section>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="page-title mb-0">Vendas</h4>
+        <a th:href="@{/vendas/nova}" class="btn btn-primary btn-sm"
+           sec:authorize="hasAnyRole('ADMIN','VENDEDOR')">
+            <i class="bi bi-plus-lg"></i> Nova venda
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover table-bordered">
+            <thead class="table-light">
+                <tr>
+                    <th>Número</th>
+                    <th>Cliente</th>
+                    <th>Data</th>
+                    <th>Pagamento</th>
+                    <th class="text-end">Total</th>
+                    <th class="text-center" style="width:100px">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:if="${#lists.isEmpty(vendas)}">
+                    <td colspan="6" class="text-center text-muted py-3">Nenhuma venda registrada.</td>
+                </tr>
+                <tr th:each="v : ${vendas}">
+                    <td>
+                        <a th:href="@{/vendas/{id}(id=${v.id})}"
+                           th:text="${v.numeroVenda}" class="fw-semibold text-decoration-none"></a>
+                    </td>
+                    <td th:text="${v.cliente.nome}"></td>
+                    <td th:text="${#temporals.format(v.dataVenda, 'dd/MM/yyyy HH:mm')}"></td>
+                    <td>
+                        <span class="badge"
+                              th:classappend="${v.formaPagamento.name() == 'PIX'} ? 'bg-success'
+                                           : (${v.formaPagamento.name() == 'DINHEIRO'} ? 'bg-secondary'
+                                           : 'bg-primary')"
+                              th:text="${v.formaPagamento.name().replace('_',' ')}"></span>
+                        <small th:if="${v.parcelas > 1}" class="text-muted"
+                               th:text="'(' + ${v.parcelas} + 'x)'"></small>
+                    </td>
+                    <td class="text-end fw-semibold"
+                        th:text="${'R$ ' + #numbers.formatDecimal(v.valorTotal, 1, 'POINT', 2, 'COMMA')}"></td>
+                    <td class="text-center">
+                        <a th:href="@{/vendas/{id}(id=${v.id})}"
+                           class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+</body>
+</html>

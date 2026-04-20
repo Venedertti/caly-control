@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Background circle - deep crimson brand color -->
+  <circle cx="32" cy="32" r="32" fill="#7A1212"/>
+
+  <!-- Stylized "C" letterform -->
+  <text x="32" y="28"
+        font-family="Georgia, serif"
+        font-size="26"
+        font-weight="bold"
+        fill="#FFFFFF"
+        text-anchor="middle"
+        dominant-baseline="middle">C</text>
+
+  <!-- Glasses icon below the letter -->
+  <!-- Left lens -->
+  <rect x="8" y="36" width="18" height="11" rx="5.5" ry="5.5"
+        fill="none" stroke="#FFFFFF" stroke-width="2.2"/>
+  <!-- Right lens -->
+  <rect x="38" y="36" width="18" height="11" rx="5.5" ry="5.5"
+        fill="none" stroke="#FFFFFF" stroke-width="2.2"/>
+  <!-- Bridge between lenses -->
+  <line x1="26" y1="41.5" x2="38" y2="41.5"
+        stroke="#FFFFFF" stroke-width="2"/>
+  <!-- Left temple arm -->
+  <line x1="8" y1="41.5" x2="4" y2="40"
+        stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+  <!-- Right temple arm -->
+  <line x1="56" y1="41.5" x2="60" y2="40"
+        stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+</svg>

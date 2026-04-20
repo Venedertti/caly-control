@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::section})}">
+<head>
+    <title th:text="${os.numeroOs + ' — Caly Vision Ótica'}">OS</title>
+</head>
+<body>
+<section>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="page-title mb-0">
+            <span class="font-monospace" th:text="${os.numeroOs}"></span>
+            <span class="badge ms-2 fs-6"
+                  th:classappend="${os.status.name() == 'ABERTA'}       ? 'bg-primary'
+                               : (${os.status.name() == 'EM_PRODUCAO'} ? 'bg-warning text-dark'
+                               : (${os.status.name() == 'PRONTA'}      ? 'bg-info text-dark'
+                               : (${os.status.name() == 'ENTREGUE'}    ? 'bg-success'
+                               : 'bg-danger')))"
+                  th:text="${os.status.descricao}"></span>
+        </h4>
+        <a th:href="@{/os}" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Voltar
+        </a>
+    </div>
+
+    <div class="row g-3 mb-3">
+        <!-- Cliente -->
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header fw-semibold"><i class="bi bi-person me-1"></i>Cliente</div>
+                <div class="card-body">
+                    <p class="fw-semibold mb-1" th:text="${os.cliente.nome}"></p>
+                    <p class="text-muted small mb-0" th:text="${os.cliente.telefone ?: ''}"></p>
+                </div>
+            </div>
+        </div>
+        <!-- OS Info -->
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header fw-semibold"><i class="bi bi-info-circle me-1"></i>Informações</div>
+                <div class="card-body">
+                    <dl class="row mb-0 small">
+                        <dt class="col-6">Abertura</dt>
+                        <dd class="col-6" th:text="${#temporals.format(os.dataAbertura, 'dd/MM/yyyy')}"></dd>
+
+                        <dt class="col-6">Previsão</dt>
+                        <dd class="col-6"
+                            th:text="${os.dataPrevisao != null ? #temporals.format(os.dataPrevisao,'dd/MM/yyyy') : '—'}"></dd>
+
+                        <dt class="col-6" th:if="${os.dataEntrega != null}">Entrega</dt>
+                        <dd class="col-6" th:if="${os.dataEntrega != null}"
+                            th:text="${#temporals.format(os.dataEntrega,'dd/MM/yyyy')}"></dd>
+
+                        <dt class="col-6">Operador</dt>
+                        <dd class="col-6" th:text="${os.usuario.nome}"></dd>
+
+                        <dt class="col-6" th:if="${os.receita != null}">Receita</dt>
+                        <dd class="col-6" th:if="${os.receita != null}">
+                            <a th:href="@{/receitas/{id}(id=${os.receita.id})}"
+                               th:text="${'#' + os.receita.id}"></a>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+        <!-- Financeiro -->
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header fw-semibold"><i class="bi bi-cash-coin me-1"></i>Financeiro</div>
+                <div class="card-body">
+                    <dl class="row mb-0 small">
+                        <dt class="col-6">Total</dt>
+                        <dd class="col-6 fw-bold fs-5"
+                            th:text="${'R$ ' + #numbers.formatDecimal(os.valorTotal, 1, 'POINT', 2, 'COMMA')}"></dd>
+
+                        <dt class="col-6">Pago</dt>
+                        <dd class="col-6 text-success"
+                            th:text="${'R$ ' + #numbers.formatDecimal(os.valorPago, 1, 'POINT', 2, 'COMMA')}"></dd>
+
+                        <dt class="col-6">Saldo</dt>
+                        <dd class="col-6 fw-semibold"
+                            th:text="${'R$ ' + #numbers.formatDecimal(os.valorTotal.subtract(os.valorPago), 1, 'POINT', 2, 'COMMA')}"
+                            th:classappend="${os.valorTotal.compareTo(os.valorPago) > 0} ? 'text-danger' : 'text-success'"></dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Itens -->
+    <div class="card mb-3">
+        <div class="card-header fw-semibold"><i class="bi bi-list-ul me-1"></i>Produtos / Serviços</div>
+        <div class="card-body p-0">
+            <table class="table table-sm mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Produto</th>
+                        <th class="text-center">Qtd</th>
+                        <th class="text-end">Preço unit.</th>
+                        <th class="text-end">Desconto</th>
+                        <th class="text-end">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="item : ${os.itens}">
+                        <td th:text="${item.produto.descricao}"></td>
+                        <td class="text-center" th:text="${item.quantidade}"></td>
+                        <td class="text-end"
+                            th:text="${'R$ ' + #numbers.formatDecimal(item.precoUnitario, 1, 'POINT', 2, 'COMMA')}"></td>
+                        <td class="text-end text-muted"
+                            th:text="${item.desconto.compareTo(java.math.BigDecimal.ZERO) > 0 ?
+                                       'R$ ' + #numbers.formatDecimal(item.desconto, 1, 'POINT', 2, 'COMMA') : '—'}"></td>
+                        <td class="text-end fw-semibold"
+                            th:text="${'R$ ' + #numbers.formatDecimal(item.subtotal(), 1, 'POINT', 2, 'COMMA')}"></td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr class="table-light fw-bold">
+                        <td colspan="4" class="text-end">Total</td>
+                        <td class="text-end"
+                            th:text="${'R$ ' + #numbers.formatDecimal(os.valorTotal, 1, 'POINT', 2, 'COMMA')}"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <!-- Observações -->
+    <div class="card mb-3" th:if="${os.observacoes != null and !os.observacoes.isEmpty()}">
+        <div class="card-header fw-semibold">Observações</div>
+        <div class="card-body" th:text="${os.observacoes}"></div>
+    </div>
+
+    <!-- Ações de status -->
+    <div class="d-flex gap-2 flex-wrap">
+        <form th:if="${os.podeAvancar()}" th:action="@{/os/{id}/avancar(id=${os.id})}" method="post">
+            <button type="submit" class="btn btn-success">
+                <i class="bi bi-arrow-right-circle me-1"></i>
+                <span th:text="${os.status.name() == 'ABERTA'       ? 'Iniciar Produção'
+                               : os.status.name() == 'EM_PRODUCAO' ? 'Marcar como Pronta'
+                               : 'Registrar Entrega'}"></span>
+            </button>
+        </form>
+        <form sec:authorize="hasAnyRole('ADMIN','VENDEDOR')"
+              th:if="${os.podeCancelar()}"
+              th:action="@{/os/{id}/cancelar(id=${os.id})}" method="post"
+              onsubmit="return confirm('Confirma o cancelamento desta OS?')">
+            <button type="submit" class="btn btn-outline-danger">
+                <i class="bi bi-x-circle me-1"></i>Cancelar OS
+            </button>
+        </form>
+    </div>
+</section>
+</body>
+</html>

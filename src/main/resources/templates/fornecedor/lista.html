@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::section})}">
+<head><title>Fornecedores — Caly Vision Ótica</title></head>
+<body>
+<section>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="page-title mb-0">Fornecedores</h4>
+        <a th:href="@{/fornecedores/novo}" class="btn btn-primary btn-sm">
+            <i class="bi bi-plus-lg"></i> Novo fornecedor
+        </a>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover table-bordered">
+            <thead class="table-light">
+                <tr>
+                    <th>Razao Social</th>
+                    <th>CNPJ</th>
+                    <th>Representante</th>
+                    <th>Telefone</th>
+                    <th class="text-center" style="width:120px">Acoes</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:if="${#lists.isEmpty(fornecedores)}">
+                    <td colspan="5" class="text-center text-muted">Nenhum fornecedor cadastrado.</td>
+                </tr>
+                <tr th:each="f : ${fornecedores}">
+                    <td th:text="${f.razaoSocial}"></td>
+                    <td th:text="${f.cnpj}"></td>
+                    <td th:text="${f.representante}"></td>
+                    <td th:text="${f.telefone}"></td>
+                    <td class="text-center">
+                        <a th:href="@{/fornecedores/{id}/editar(id=${f.id})}"
+                           class="btn btn-sm btn-outline-primary">Editar</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+</body>
+</html>

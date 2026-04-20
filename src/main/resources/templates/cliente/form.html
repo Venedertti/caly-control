@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::section})}">
+<head>
+    <title>Cliente — Caly Vision Ótica</title>
+</head>
+<body>
+<section>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="page-title mb-0" th:text="${cliente.id == null} ? 'Novo Cliente' : 'Editar Cliente'"></h4>
+        <a th:href="@{/clientes}" class="btn btn-sm btn-outline-secondary">Voltar</a>
+    </div>
+
+    <div class="alert alert-info" role="alert" style="max-width:700px">
+        <h6 class="alert-heading"><i class="bi bi-shield-lock"></i> Aviso de Privacidade (LGPD)</h6>
+        <p class="mb-1 small">
+            Os dados pessoais coletados neste cadastro (nome, CPF, contatos e endereço) são tratados
+            com base na <strong>execução do contrato de prestação de serviços</strong>
+            (LGPD Art. 7º, V) e, no caso de dados de saúde vinculados a receitas ópticas, na
+            <strong>tutela da saúde</strong> (Art. 11, II, "c"). A finalidade é exclusivamente
+            o atendimento, entrega e pós-venda na ótica.
+        </p>
+        <p class="mb-0 small">
+            O titular pode a qualquer momento solicitar acesso, correção, portabilidade ou eliminação
+            dos seus dados (Art. 18). Encarregado pelo tratamento:
+            <a href="mailto:dpo@calycontrol.com">dpo@calycontrol.com</a>.
+        </p>
+    </div>
+
+    <div class="card" style="max-width:700px">
+        <div class="card-body">
+            <form th:action="${cliente.id == null} ? @{/clientes} : @{/clientes/{id}(id=${cliente.id})}"
+                  th:object="${cliente}" method="post">
+
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <label class="form-label">Nome *</label>
+                        <input type="text" th:field="*{nome}" class="form-control"
+                               th:classappend="${#fields.hasErrors('nome')} ? 'is-invalid'" required>
+                        <div class="invalid-feedback" th:errors="*{nome}"></div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">CPF</label>
+                        <input type="text" th:field="*{cpf}" class="form-control" maxlength="14">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Telefone</label>
+                        <input type="text" th:field="*{telefone}" class="form-control" maxlength="20">
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label">E-mail</label>
+                        <input type="email" th:field="*{email}" class="form-control">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">CEP</label>
+                        <input type="text" th:field="*{cep}" class="form-control" maxlength="9" id="cep">
+                    </div>
+                    <div class="col-md-9">
+                        <label class="form-label">Endereco</label>
+                        <input type="text" th:field="*{endereco}" class="form-control" id="endereco">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Data de Nascimento</label>
+                        <input type="date" th:field="*{dataNascimento}" class="form-control">
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                    <a th:href="@{/clientes}" class="btn btn-outline-secondary ms-2">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+<script>
+document.getElementById('cep')?.addEventListener('blur', function () {
+    const cep = this.value.replace(/\D/g, '');
+    if (cep.length === 8) {
+        fetch(`https://viacep.com.br/ws/${cep}/json/`)
+            .then(r => r.json())
+            .then(d => {
+                if (!d.erro) {
+                    document.getElementById('endereco').value =
+                        `${d.logradouro}, ${d.bairro}, ${d.localidade} - ${d.uf}`;
+                }
+            });
+    }
+});
+</script>
+</body>
+</html>

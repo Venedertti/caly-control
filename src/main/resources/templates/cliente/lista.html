@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::section})}">
+<head>
+    <title>Clientes — Caly Vision Ótica</title>
+</head>
+<body>
+<section>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="page-title mb-0">Clientes</h4>
+        <a th:href="@{/clientes/novo}" class="btn btn-primary btn-sm">
+            <i class="bi bi-plus-lg"></i> Novo cliente
+        </a>
+    </div>
+
+    <form th:action="@{/clientes}" method="get" class="row g-2 mb-3">
+        <div class="col-md-6">
+            <input type="text" name="busca" th:value="${busca}"
+                   class="form-control" placeholder="Buscar por nome, CPF ou telefone...">
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-outline-secondary">Buscar</button>
+            <a th:href="@{/clientes}" class="btn btn-outline-secondary">Limpar</a>
+        </div>
+    </form>
+
+    <div class="table-responsive">
+        <table class="table table-hover table-bordered">
+            <thead class="table-light">
+                <tr>
+                    <th>Nome</th>
+                    <th>CPF</th>
+                    <th>Telefone</th>
+                    <th>E-mail</th>
+                    <th class="text-center" style="width:120px">Acoes</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:if="${#lists.isEmpty(clientes)}">
+                    <td colspan="5" class="text-center text-muted">Nenhum cliente encontrado.</td>
+                </tr>
+                <tr th:each="c : ${clientes}">
+                    <td><a th:href="@{/clientes/{id}(id=${c.id})}" th:text="${c.nome}"></a></td>
+                    <td th:text="${c.cpf}"></td>
+                    <td th:text="${c.telefone}"></td>
+                    <td th:text="${c.email}"></td>
+                    <td class="text-center">
+                        <a th:href="@{/clientes/{id}/editar(id=${c.id})}"
+                           class="btn btn-sm btn-outline-primary">Editar</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+</body>
+</html>

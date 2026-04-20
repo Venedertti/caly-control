@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::section})}">
+<head><title>Medico — Caly Vision Ótica</title></head>
+<body>
+<section>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="page-title mb-0" th:text="${medico.id == null} ? 'Novo Medico' : 'Editar Medico'"></h4>
+        <a th:href="@{/medicos}" class="btn btn-sm btn-outline-secondary">Voltar</a>
+    </div>
+    <div class="card" style="max-width:500px">
+        <div class="card-body">
+            <form th:action="${medico.id == null} ? @{/medicos} : @{/medicos/{id}(id=${medico.id})}"
+                  th:object="${medico}" method="post">
+                <div class="mb-3">
+                    <label class="form-label">Nome *</label>
+                    <input type="text" th:field="*{nome}" class="form-control"
+                           th:classappend="${#fields.hasErrors('nome')} ? 'is-invalid'" required>
+                    <div class="invalid-feedback" th:errors="*{nome}"></div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">CRM *</label>
+                    <input type="text" th:field="*{crm}" class="form-control"
+                           th:classappend="${#fields.hasErrors('crm')} ? 'is-invalid'" required>
+                    <div class="invalid-feedback" th:errors="*{crm}"></div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Telefone</label>
+                    <input type="text" th:field="*{telefone}" class="form-control">
+                </div>
+                <button type="submit" class="btn btn-primary">Salvar</button>
+                <a th:href="@{/medicos}" class="btn btn-outline-secondary ms-2">Cancelar</a>
+            </form>
+        </div>
+    </div>
+</section>
+</body>
+</html>

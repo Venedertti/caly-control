@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::section})}">
+<head><title>Produtos — Caly Vision Ótica</title></head>
+<body>
+<section>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="page-title mb-0">Produtos</h4>
+        <a th:href="@{/produtos/novo}" class="btn btn-primary btn-sm"
+           sec:authorize="hasAnyRole('ADMIN','VENDEDOR')">
+            <i class="bi bi-plus-lg"></i> Novo produto
+        </a>
+    </div>
+
+    <form th:action="@{/produtos}" method="get" class="row g-2 mb-3">
+        <div class="col-md-6">
+            <input type="text" name="busca" th:value="${busca}"
+                   class="form-control" placeholder="Buscar por codigo, descricao ou marca...">
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-outline-secondary">Buscar</button>
+            <a th:href="@{/produtos}" class="btn btn-outline-secondary">Limpar</a>
+        </div>
+    </form>
+
+    <div class="table-responsive">
+        <table class="table table-hover table-bordered">
+            <thead class="table-light">
+                <tr>
+                    <th>Codigo</th>
+                    <th>Descricao</th>
+                    <th>Tipo</th>
+                    <th>Marca</th>
+                    <th class="text-end">Preco</th>
+                    <th class="text-center">Estoque</th>
+                    <th class="text-center" style="width:120px">Acoes</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:if="${#lists.isEmpty(produtos)}">
+                    <td colspan="7" class="text-center text-muted">Nenhum produto encontrado.</td>
+                </tr>
+                <tr th:each="p : ${produtos}" th:classappend="${p.estoqueBaixo()} ? 'table-warning'">
+                    <td th:text="${p.codigo}"></td>
+                    <td th:text="${p.descricao}"></td>
+                    <td th:text="${p.tipo}"></td>
+                    <td th:text="${p.marca}"></td>
+                    <td class="text-end" th:text="${#numbers.formatDecimal(p.precoVenda, 1, 'POINT', 2, 'COMMA')}"></td>
+                    <td class="text-center">
+                        <span th:text="${p.estoqueAtual}"
+                              th:classappend="${p.estoqueBaixo()} ? 'text-danger fw-bold'"></span>
+                    </td>
+                    <td class="text-center">
+                        <a th:href="@{/produtos/{id}/editar(id=${p.id})}"
+                           class="btn btn-sm btn-outline-primary"
+                           sec:authorize="hasAnyRole('ADMIN','VENDEDOR')">Editar</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+</body>
+</html>

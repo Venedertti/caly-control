@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::section})}">
+<head><title>Produto — Caly Vision Ótica</title></head>
+<body>
+<section>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="page-title mb-0" th:text="${produto.id == null} ? 'Novo Produto' : 'Editar Produto'"></h4>
+        <a th:href="@{/produtos}" class="btn btn-sm btn-outline-secondary">Voltar</a>
+    </div>
+    <div class="card" style="max-width:700px">
+        <div class="card-body">
+            <form th:action="${produto.id == null} ? @{/produtos} : @{/produtos/{id}(id=${produto.id})}"
+                  th:object="${produto}" method="post">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Codigo *</label>
+                        <input type="text" th:field="*{codigo}" class="form-control"
+                               th:classappend="${#fields.hasErrors('codigo')} ? 'is-invalid'" required>
+                        <div class="invalid-feedback" th:errors="*{codigo}"></div>
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label">Descricao *</label>
+                        <input type="text" th:field="*{descricao}" class="form-control"
+                               th:classappend="${#fields.hasErrors('descricao')} ? 'is-invalid'" required>
+                        <div class="invalid-feedback" th:errors="*{descricao}"></div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Tipo *</label>
+                        <select th:field="*{tipo}" class="form-select" required>
+                            <option value="">Selecione...</option>
+                            <option th:each="t : ${tipos}" th:value="${t}" th:text="${t}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Marca</label>
+                        <input type="text" th:field="*{marca}" class="form-control">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Fornecedor *</label>
+                        <select th:field="*{fornecedor}" class="form-select" required>
+                            <option value="">Selecione...</option>
+                            <option th:each="f : ${fornecedores}"
+                                    th:value="${f.id}"
+                                    th:text="${f.razaoSocial}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Preco de Custo</label>
+                        <input type="number" th:field="*{precoCusto}" class="form-control"
+                               step="0.01" min="0">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Preco de Venda *</label>
+                        <input type="number" th:field="*{precoVenda}" class="form-control"
+                               th:classappend="${#fields.hasErrors('precoVenda')} ? 'is-invalid'"
+                               step="0.01" min="0" required>
+                        <div class="invalid-feedback" th:errors="*{precoVenda}"></div>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Estoque Atual</label>
+                        <input type="number" th:field="*{estoqueAtual}" class="form-control" min="0">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Estoque Minimo</label>
+                        <input type="number" th:field="*{estoqueMinimo}" class="form-control" min="0">
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                    <a th:href="@{/produtos}" class="btn btn-outline-secondary ms-2">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+</body>
+</html>
