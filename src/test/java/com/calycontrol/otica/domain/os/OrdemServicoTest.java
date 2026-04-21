@@ -1,10 +1,14 @@
 package com.calycontrol.otica.domain.os;
 
+import com.calycontrol.otica.domain.cliente.Cliente;
+import com.calycontrol.otica.domain.receita.ReceitaOptica;
+import com.calycontrol.otica.domain.usuario.Usuario;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -113,5 +117,60 @@ class OrdemServicoTest {
         os.setStatus(StatusOS.ENTREGUE);
         os.avancar();
         assertThat(os.getStatus()).isEqualTo(StatusOS.ENTREGUE);
+    }
+
+    @Test
+    @DisplayName("avancar de CANCELADA não deve mudar status")
+    void avancar_deCancelada_naoAltera() {
+        os.setStatus(StatusOS.CANCELADA);
+        os.avancar();
+        assertThat(os.getStatus()).isEqualTo(StatusOS.CANCELADA);
+    }
+
+    @Test
+    @DisplayName("deve aceitar e retornar todos os campos via setters e getters")
+    void camposLombok_devemSerAcessiveis() {
+        Cliente cliente = new Cliente();
+        cliente.setId(1L);
+        ReceitaOptica receita = new ReceitaOptica();
+        Usuario usuario = new Usuario();
+        usuario.setId(2L);
+        LocalDate hoje = LocalDate.now();
+
+        os.setId(10L);
+        os.setCliente(cliente);
+        os.setReceita(receita);
+        os.setUsuario(usuario);
+        os.setNumeroOs("OS-20260420-001");
+        os.setStatus(StatusOS.EM_PRODUCAO);
+        os.setValorTotal(new BigDecimal("300.00"));
+        os.setValorPago(new BigDecimal("150.00"));
+        os.setDataAbertura(hoje);
+        os.setDataPrevisao(hoje.plusDays(5));
+        os.setDataEntrega(hoje.plusDays(7));
+        os.setObservacoes("Entrega urgente");
+
+        assertThat(os.getId()).isEqualTo(10L);
+        assertThat(os.getCliente()).isSameAs(cliente);
+        assertThat(os.getReceita()).isSameAs(receita);
+        assertThat(os.getUsuario()).isSameAs(usuario);
+        assertThat(os.getNumeroOs()).isEqualTo("OS-20260420-001");
+        assertThat(os.getStatus()).isEqualTo(StatusOS.EM_PRODUCAO);
+        assertThat(os.getValorTotal()).isEqualByComparingTo(new BigDecimal("300.00"));
+        assertThat(os.getValorPago()).isEqualByComparingTo(new BigDecimal("150.00"));
+        assertThat(os.getDataAbertura()).isEqualTo(hoje);
+        assertThat(os.getDataPrevisao()).isEqualTo(hoje.plusDays(5));
+        assertThat(os.getDataEntrega()).isEqualTo(hoje.plusDays(7));
+        assertThat(os.getObservacoes()).isEqualTo("Entrega urgente");
+    }
+
+    @Test
+    @DisplayName("status padrão deve ser ABERTA ao criar nova OS")
+    void statusPadrao_deveSerAberta() {
+        OrdemServico nova = new OrdemServico();
+        assertThat(nova.getStatus()).isEqualTo(StatusOS.ABERTA);
+        assertThat(nova.getValorTotal()).isEqualByComparingTo(BigDecimal.ZERO);
+        assertThat(nova.getValorPago()).isEqualByComparingTo(BigDecimal.ZERO);
+        assertThat(nova.getDataAbertura()).isEqualTo(LocalDate.now());
     }
 }
